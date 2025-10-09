@@ -1,0 +1,28 @@
+# Example Dockerfile for deploying an Astro site with binserve
+
+# Stage 1: Build Astro site
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy source files and build
+COPY . .
+RUN npm run build
+
+# Stage 2: Serve with binserve
+FROM ghcr.io/diit/binserve:astro-v5.14.3
+
+# Copy built Astro site from builder
+COPY --from=builder /app/dist /app/public/
+
+# Optional: Copy custom binserve config
+# COPY binserve.json /app/binserve.json
+
+# That's it! The image is ready to run.
+# Port 8080 is exposed by default.
+# Supports both amd64 and arm64 architectures.
+

@@ -1,0 +1,41 @@
+{
+  "server": {
+    "host": "0.0.0.0:8080",
+    "tls": {
+      "enable": false
+    }
+  },
+  "routes": {
+    "/": "/app/public/"
+  },
+  "error_pages": {
+    "404": "/app/public/404.html",
+    "500": "/app/public/500.html"
+  },
+  "template": {
+    "partials": {},
+    "variables": {
+      "app_name": "My Static Site"
+    }
+  },
+  "config": {
+    "enable_hot_reload": false,
+    "fast_mem_cache": true,
+    "enable_cache_control": true,
+    "enable_directory_listing": false,
+    "minify_html": true,
+    "follow_symlinks": false,
+    "enable_logging": true
+  },
+  "insert_headers": {
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Cache-Control": "public, max-age=3600"
+  }
+}
+

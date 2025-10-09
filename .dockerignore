@@ -1,0 +1,50 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+
+# Development environment
+.devenv
+.devenv.flake.nix
+devenv.local.nix
+devenv.lock
+devenv.nix
+devenv.yaml
+
+# Build tools
+.earthly
+Earthfile
+
+# Documentation
+*.md
+README.md
+CHANGELOG.md
+SECURITY.md
+
+# Examples
+*.example.*
+Dockerfile.example
+
+# License
+LICENSE
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log
+
+# Test outputs
+trivy-results.sarif
+test-results/
+coverage/
+
