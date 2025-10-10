@@ -62,11 +62,11 @@ jobs:
 
       - name: Build images locally (PR)
         if: github.event_name == 'pull_request'
-        run: earthly +astro
+        run: earthly +astro-all-platforms
 
       - name: Build and push images (main/tags)
         if: github.event_name != 'pull_request'
-        run: earthly --push +astro
+        run: earthly --push +astro-all-platforms
 
   release:
     name: Create Release

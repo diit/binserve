@@ -124,6 +124,9 @@ astro:
     CMD ["-c", "/app/binserve.json"]
     
     # Save images with proper registry configuration
-    SAVE IMAGE binserve:astro-v${ASTRO_VERSION}
     SAVE IMAGE --push ${REGISTRY}/${REPO}:astro-v${ASTRO_VERSION}
+
+# Multi-platform build target
+astro-all-platforms:
+    BUILD --platform=linux/amd64 --platform=linux/arm64 +astro
 
