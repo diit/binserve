@@ -2,7 +2,10 @@
   "server": {
     "host": "0.0.0.0:8080",
     "tls": {
-      "enable": false
+      "host": "0.0.0.0:443",
+      "enable": false,
+      "key": "key.pem",
+      "cert": "cert.pem"
     }
   },
   "routes": {
