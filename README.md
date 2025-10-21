@@ -2,7 +2,8 @@
 
 Pre-built container image for hosting Astro static sites using [binserve](https://github.com/mufeedvh/binserve).
 
-This image only supports Astro's `output: 'static'` mode. SSR and Hybrid modes require Node.js and are not compatible.
+This image only supports Astro's `output: 'static'` mode. SSR and Hybrid
+modes require Node.js and are not compatible.
 
 ## Docker Example
 
@@ -31,7 +32,7 @@ Build and run:
 
 ```bash
 docker build -t my-astro-site .
-docker run -p 8080:8080 my-astro-site
+docker run -p 3000:3000 my-astro-site
 ```
 
 ## Kustomize Example
@@ -71,7 +72,7 @@ spec:
       - name: web
         image: my-astro-site
         ports:
-        - containerPort: 8080
+        - containerPort: 3000
         resources:
           requests:
             memory: 64Mi
@@ -97,7 +98,7 @@ spec:
     app: astro-site
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 3000
 ```
 
 Deploy:
@@ -109,7 +110,8 @@ kubectl apply -k .
 ## Configuration
 
 Default settings:
-- Port: 8080
+
+- Port: 3000
 - Content directory: `/app/public/`
 - Base image: Google Distroless (static-debian12:nonroot)
 - User: Non-root (UID 65532)

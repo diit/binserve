@@ -114,7 +114,7 @@ astro:
     # Our files are owned by root but readable by all
     
     # Expose port
-    EXPOSE 8080
+    EXPOSE 3000
     
     # No health check - distroless has no shell/wget
     # K8s should use httpGet probes instead
