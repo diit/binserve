@@ -23,6 +23,6 @@ COPY --from=builder /app/dist /app/public/
 # COPY binserve.json /app/binserve.json
 
 # That's it! The image is ready to run.
-# Port 3000 is exposed by default.eee
+# Port 3000 is exposed by default.
 # Supports both amd64 and arm64 architectures.
 

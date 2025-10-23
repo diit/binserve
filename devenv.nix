@@ -55,10 +55,14 @@
   
   scripts.scan.exec = ''
     echo "Scanning image for vulnerabilities..."
-    trivy image binserve:astro-v4.16.18
+    IMAGE_TAG=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2)
+    trivy image ghcr.io/diit/binserve:astro-v$${IMAGE_TAG}
   '';
   
   scripts.info.exec = ''
+    ASTRO_VERSION=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    BINSERVE_VERSION=$(grep 'ARG --global BINSERVE_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    
     echo "Binserve for Astro - Development Environment"
     echo "=============================================="
     echo ""
@@ -69,8 +73,8 @@
     echo "  scan        - Security scan with Trivy"
     echo ""
     echo "Image details:"
-    echo "  Astro version: 4.16.18"
-    echo "  Binserve version: v0.2.0"
+    echo "  Astro version: $${ASTRO_VERSION}"
+    echo "  Binserve version: $${BINSERVE_VERSION}"
     echo "  Architectures: amd64, arm64"
     echo ""
     echo "Documentation: README.md"

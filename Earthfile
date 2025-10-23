@@ -58,13 +58,13 @@ test:
     FROM alpine:latest
     
     # Install testing tools
-    RUN apk add --no-cache jq file
+    RUN apk add --no-cache jq file curl
     
     # Copy artifacts to test
     COPY +binserve-binary/binserve /tmp/binserve
     COPY +config/binserve.json /tmp/binserve.json
     
-    # Create HTML files
+    # Create HTML files for testing
     RUN mkdir -p /tmp/public
     RUN echo '<html><body><h1>Test Page</h1></body></html>' > /tmp/public/index.html
     RUN echo '<html><body><h1>404 - Not Found</h1></body></html>' > /tmp/public/404.html
@@ -76,6 +76,27 @@ test:
     
     # Validate JSON is syntactically correct
     RUN jq empty /tmp/binserve.json || (echo "Invalid JSON configuration" && exit 1)
+    
+    # Runtime integration test - start server and verify it serves content
+    RUN echo "Starting runtime integration test..."
+    
+    # Update config to use /tmp/public as the content directory
+    RUN jq '.routes."/" = "/tmp/public/"' /tmp/binserve.json > /tmp/test-config.json
+    
+    # Start binserve in background and test
+    RUN /tmp/binserve -c /tmp/test-config.json & \
+        SERVER_PID=$! && \
+        echo "Server started with PID $SERVER_PID, waiting for startup..." && \
+        sleep 3 && \
+        echo "Testing HTTP endpoints..." && \
+        curl -f -s http://localhost:3000/ | grep -q "Test Page" && \
+        echo "✓ Index page serves correctly" && \
+        curl -f -s -I http://localhost:3000/ | grep -q "200 OK" && \
+        echo "✓ HTTP 200 response received" && \
+        curl -s -I http://localhost:3000/nonexistent | grep -q "404" && \
+        echo "✓ 404 handling works" && \
+        kill $SERVER_PID 2>/dev/null || true && \
+        echo "✓ Runtime integration test passed"
 
 # Astro image - distroless for maximum security
 astro:

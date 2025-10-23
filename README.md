@@ -1,9 +1,8 @@
 # Binserve for Astro
 
-Pre-built container image for hosting Astro static sites using [binserve](https://github.com/mufeedvh/binserve).
+Container image for serving Astro static sites with [binserve](https://github.com/mufeedvh/binserve).
 
-This image only supports Astro's `output: 'static'` mode. SSR and Hybrid
-modes require Node.js and are not compatible.
+Supports `output: 'static'` only. SSR and Hybrid modes are not supported.
 
 ## Docker Example
 
@@ -27,8 +26,6 @@ FROM ghcr.io/diit/binserve:astro-v5.14.3
 # Copy built site
 COPY --from=builder /app/dist /app/public/
 ```
-
-Build and run:
 
 ```bash
 docker build -t my-astro-site .
@@ -101,34 +98,29 @@ spec:
     targetPort: 3000
 ```
 
-Deploy:
-
 ```bash
 kubectl apply -k .
 ```
 
-## Configuration
+## Image Details
 
-Default settings:
-
-- Port: 3000
-- Content directory: `/app/public/`
-- Base image: Google Distroless (static-debian12:nonroot)
-- User: Non-root (UID 65532)
+- Base: Google Distroless (static-debian12:nonroot)
+- User: UID 65532 (non-root)
 - Architectures: amd64, arm64
 
-To customize, provide your own `binserve.json`:
+## Configuration
+
+Default port is 3000, content directory is `/app/public/`. You can override `binserve.json`:
 
 ```dockerfile
 FROM ghcr.io/diit/binserve:astro-v5.14.3
-
 COPY ./dist /app/public/
 COPY ./binserve.json /app/binserve.json
 ```
 
 ## Astro Configuration
 
-Set static output mode in `astro.config.mjs`:
+`astro.config.mjs`:
 
 ```javascript
 import { defineConfig } from 'astro/config';
@@ -136,6 +128,23 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   output: 'static'
 });
+```
+
+## Security
+
+- Trivy scans on every build (blocks on CRITICAL/HIGH vulnerabilities)
+- SBOM included with releases (SPDX format)
+- SLSA build provenance attestations
+- GitHub Actions pinned to commit SHAs
+- Distroless base image (no shell/package manager)
+- Runs as non-root (UID 65532)
+- Read-only filesystem compatible
+- Statically linked binary
+
+Verify image:
+
+```bash
+gh attestation verify oci://ghcr.io/diit/binserve:astro-v5.14.3 -o diit
 ```
 
 ## License

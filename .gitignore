@@ -1,18 +1,17 @@
 # devenv
 .devenv/
 .devenv.flake.nix
+.direnv/
 devenv.local.nix
+.pre-commit-config.yaml
 
 # Earthly
 .earthly/
-
-# Build artifacts
-*.tar
-*.tar.gz
-*.app
+build/
 
 # Docker
-.docker/
+*.tar
+*.tar.gz
 
 # IDE
 .vscode/
@@ -20,13 +19,27 @@ devenv.local.nix
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
+Thumbs.db
 
 # Temporary files
 *.tmp
 *.log
 
-# Test outputs
-trivy-results.sarif
-test-results/
-coverage/
+# Build artifacts
+dist/
+target/
+
+# Local configuration (if users create actual configs from examples)
+astro.config.mjs
+binserve.json
+Dockerfile
+
+# Node (in case users test locally)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
