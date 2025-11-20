@@ -1,6 +1,7 @@
-# Example Dockerfile for deploying an Astro site with binserve
+# Example Dockerfile for deploying a static site with binserve
+# Works with any static site generator (Astro, Hugo, Next.js, Gatsby, etc.)
 
-# Stage 1: Build Astro site
+# Stage 1: Build your static site
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -14,9 +15,15 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve with binserve
-FROM ghcr.io/diit/binserve:astro-v5.14.3
+FROM ghcr.io/diit/binserve:v0.2.0
 
-# Copy built Astro site from builder
+# Copy built site from builder to /app/public/
+# Adjust the source path based on your framework's output directory:
+# - Astro: /app/dist
+# - Hugo: /app/public
+# - Next.js: /app/out
+# - Gatsby: /app/public
+# - Vite: /app/dist
 COPY --from=builder /app/dist /app/public/
 
 # Optional: Copy custom binserve config

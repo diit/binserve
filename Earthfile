@@ -2,7 +2,10 @@ VERSION 0.8
 
 # Build arguments
 ARG --global BINSERVE_VERSION=v0.2.0
+# Framework versions for testing compatibility
 ARG --global ASTRO_VERSION=5.14.3
+ARG --global HUGO_VERSION=0.139.3
+ARG --global NEXTJS_VERSION=15.0.0
 ARG --global REGISTRY=ghcr.io
 ARG --global REPO=diit/binserve
 
@@ -42,7 +45,7 @@ binserve-binary:
         cp /build/target/$TARGET/release/binserve /build/binserve
     SAVE ARTIFACT /build/binserve /binserve
 
-# Create binserve configuration for Astro
+# Create binserve configuration for static sites
 config:
     FROM alpine:latest
     WORKDIR /config
@@ -98,8 +101,8 @@ test:
         kill $SERVER_PID 2>/dev/null || true && \
         echo "✓ Runtime integration test passed"
 
-# Astro image - distroless for maximum security
-astro:
+# Universal static site image - distroless for maximum security
+binserve:
     # Run tests first to ensure build is valid
     BUILD +test
     
@@ -119,14 +122,15 @@ astro:
     # immutable and don't support RUN commands (no shell, no package manager).
     
     # Add labels
-    ARG ASTRO_VERSION=5.14.3
     ARG BINSERVE_VERSION=v0.2.0
+    ARG ASTRO_VERSION=5.14.3
+    ARG HUGO_VERSION=0.139.3
+    ARG NEXTJS_VERSION=15.0.0
     ARG REGISTRY=ghcr.io
     ARG REPO=diit/binserve
-    LABEL astro.version=${ASTRO_VERSION}
-    LABEL astro.mode="static"
     LABEL binserve.version=${BINSERVE_VERSION}
-    LABEL org.opencontainers.image.description="Distroless binserve container for Astro ${ASTRO_VERSION} static sites"
+    LABEL tested.frameworks="{\"astro\":\"${ASTRO_VERSION}\",\"hugo\":\"${HUGO_VERSION}\",\"nextjs\":\"${NEXTJS_VERSION}\"}"
+    LABEL org.opencontainers.image.description="Distroless binserve container for serving static sites from any framework"
     LABEL org.opencontainers.image.base.name="gcr.io/distroless/static-debian12:nonroot"
     LABEL org.opencontainers.image.source="https://github.com/diit/binserve"
     LABEL org.opencontainers.image.licenses="MIT"
@@ -145,9 +149,9 @@ astro:
     CMD ["-c", "/app/binserve.json"]
     
     # Save images with proper registry configuration
-    SAVE IMAGE --push ${REGISTRY}/${REPO}:astro-v${ASTRO_VERSION}
+    SAVE IMAGE --push ${REGISTRY}/${REPO}:${BINSERVE_VERSION}
 
 # Multi-platform build target
-astro-all-platforms:
-    BUILD --platform=linux/amd64 --platform=linux/arm64 +astro
+all-platforms:
+    BUILD --platform=linux/amd64 --platform=linux/arm64 +binserve
 

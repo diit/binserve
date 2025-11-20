@@ -1,0 +1,17 @@
+# Example Hugo configuration for use with binserve
+# Compatible with Hugo 0.139.3+
+
+baseURL = "https://example.com/"
+languageCode = "en-us"
+title = "My Hugo Site"
+
+# Hugo automatically builds to 'public/' directory
+# which works perfectly with binserve
+
+[params]
+  description = "A Hugo site served with binserve"
+  author = "Your Name"
+
+# Binserve serves your 404.html automatically
+# Just create layouts/404.html
+

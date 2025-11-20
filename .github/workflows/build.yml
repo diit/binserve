@@ -33,14 +33,20 @@ jobs:
       - name: Extract versions from Earthfile
         id: version
         run: |
-          ASTRO_VERSION=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2)
           BINSERVE_VERSION=$(grep 'ARG --global BINSERVE_VERSION=' Earthfile | cut -d'=' -f2)
-          IMAGE_TAG="astro-v${ASTRO_VERSION}"
-          echo "astro_version=${ASTRO_VERSION}" >> $GITHUB_OUTPUT
+          ASTRO_VERSION=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2)
+          HUGO_VERSION=$(grep 'ARG --global HUGO_VERSION=' Earthfile | cut -d'=' -f2 || echo "0.139.3")
+          NEXTJS_VERSION=$(grep 'ARG --global NEXTJS_VERSION=' Earthfile | cut -d'=' -f2 || echo "15.0.0")
+          IMAGE_TAG="${BINSERVE_VERSION}"
           echo "binserve_version=${BINSERVE_VERSION}" >> $GITHUB_OUTPUT
+          echo "astro_version=${ASTRO_VERSION}" >> $GITHUB_OUTPUT
+          echo "hugo_version=${HUGO_VERSION}" >> $GITHUB_OUTPUT
+          echo "nextjs_version=${NEXTJS_VERSION}" >> $GITHUB_OUTPUT
           echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-          echo "Astro Version: ${ASTRO_VERSION}"
           echo "Binserve Version: ${BINSERVE_VERSION}"
+          echo "Astro Version (tested): ${ASTRO_VERSION}"
+          echo "Hugo Version (tested): ${HUGO_VERSION}"
+          echo "Next.js Version (tested): ${NEXTJS_VERSION}"
           echo "Image Tag: ${IMAGE_TAG}"
 
       - name: Set up QEMU
@@ -80,13 +86,13 @@ jobs:
 
       - name: Build images locally (PR)
         if: github.event_name == 'pull_request'
-        run: earthly --ci +astro-all-platforms
+        run: earthly --ci +all-platforms
 
       - name: Build and push images (main)
         id: build_push
         if: github.event_name != 'pull_request'
         run: |
-          earthly --ci --push +astro-all-platforms
+          earthly --ci --push +all-platforms
           # Extract manifest list digest for attestation
           DIGEST=$(crane digest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.image_tag }})
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
@@ -203,9 +209,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.build-and-test.outputs.image_tag }}
-          name: Astro ${{ needs.build-and-test.outputs.astro_version }}
+          name: Binserve ${{ needs.build-and-test.outputs.binserve_version }}
           body: |
-            ## Binserve for Astro v${{ needs.build-and-test.outputs.astro_version }}
+            ## Universal Static Site Server - Binserve ${{ needs.build-and-test.outputs.binserve_version }}
+            
+            A secure, high-performance container for serving static sites from any framework.
             
             ### Docker Images
             Pull the multi-architecture image:
@@ -213,9 +221,15 @@ jobs:
             docker pull ${{ env.REGISTRY }}/${{ github.repository }}:${{ needs.build-and-test.outputs.image_tag }}
             ```
             
-            ### Versions
-            - **Astro**: ${{ needs.build-and-test.outputs.astro_version }}
+            ### Version
             - **Binserve**: ${{ needs.build-and-test.outputs.binserve_version }}
+            
+            ### Tested With
+            This release has been tested with the following static site generators:
+            - **Astro**: ${{ needs.build-and-test.outputs.astro_version }}
+            - **Hugo**: ${{ needs.build-and-test.outputs.hugo_version }}
+            - **Next.js** (static export): ${{ needs.build-and-test.outputs.nextjs_version }}
+            - **Gatsby**, **Vite**, **Eleventy**, **Jekyll**, **MkDocs**: Compatible with any framework that outputs static HTML
             
             ### Multi-Architecture Support
             - ✅ linux/amd64 (x86_64)
@@ -229,10 +243,14 @@ jobs:
             - ✅ Runs as non-root user (UID 65532)
             
             ### Usage
+            Works with any static site generator - just copy your built files to `/app/public/`:
+            
             ```dockerfile
             FROM ${{ env.REGISTRY }}/${{ github.repository }}:${{ needs.build-and-test.outputs.image_tag }}
             COPY ./dist /app/public/
             ```
+            
+            See [README](https://github.com/${{ github.repository }}#readme) for framework-specific examples.
             
             ### Verify Image Provenance
             ```bash

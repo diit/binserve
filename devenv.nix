@@ -17,35 +17,20 @@
     earthly
     docker
     
-    # Container inspection and security
-    dive          # Docker image analysis
-    trivy         # Vulnerability scanner
-    
-    # JSON/YAML processing
-    jq            # JSON processor
-    yq-go         # YAML processor
-    
     # Testing and debugging
     curl          # HTTP client
-    httpie        # Modern HTTP client
-    
-    # Documentation
-    markdownlint-cli  # Markdown linting
-    
-    # Optional: Kubernetes tools (comment out if not needed)
-    kubectl
-    kubernetes-helm
+    act           # Run GitHub Actions locally
   ];
 
   # https://devenv.sh/scripts/
   scripts.build.exec = ''
     echo "Building container images with Earthly..."
-    earthly +astro
+    earthly +binserve
   '';
   
   scripts.build-push.exec = ''
     echo "Building and pushing container images..."
-    earthly --push +astro
+    earthly --push +binserve
   '';
   
   scripts.test.exec = ''
@@ -55,44 +40,60 @@
   
   scripts.scan.exec = ''
     echo "Scanning image for vulnerabilities..."
-    IMAGE_TAG=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2)
-    trivy image ghcr.io/diit/binserve:astro-v$${IMAGE_TAG}
+    IMAGE_TAG=$(grep 'ARG --global BINSERVE_VERSION=' Earthfile | cut -d'=' -f2)
+    trivy image ghcr.io/diit/binserve:''${IMAGE_TAG}
+  '';
+  
+  scripts.act-dry.exec = ''
+    echo "Simulating GitHub Actions workflow (dry run)..."
+    act push -n
+  '';
+  
+  scripts.act-build.exec = ''
+    echo "Running build-and-test job locally with act..."
+    act push -j build-and-test
+  '';
+  
+  scripts.act-full.exec = ''
+    echo "Running full GitHub Actions workflow locally..."
+    act push
   '';
   
   scripts.info.exec = ''
-    ASTRO_VERSION=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
     BINSERVE_VERSION=$(grep 'ARG --global BINSERVE_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    ASTRO_VERSION=$(grep 'ARG --global ASTRO_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    HUGO_VERSION=$(grep 'ARG --global HUGO_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
+    NEXTJS_VERSION=$(grep 'ARG --global NEXTJS_VERSION=' Earthfile | cut -d'=' -f2 2>/dev/null || echo "unknown")
     
-    echo "Binserve for Astro - Development Environment"
-    echo "=============================================="
+    echo "Binserve - Development Environment"
+    echo "==================================="
     echo ""
     echo "Available commands:"
     echo "  build       - Build container images locally"
     echo "  build-push  - Build and push to registry"
     echo "  test        - Run test suite"
     echo "  scan        - Security scan with Trivy"
+    echo "  act-dry     - Simulate GitHub Actions (dry run)"
+    echo "  act-build   - Run build-and-test job locally"
+    echo "  act-full    - Run full workflow locally"
     echo ""
     echo "Image details:"
-    echo "  Astro version: $${ASTRO_VERSION}"
-    echo "  Binserve version: $${BINSERVE_VERSION}"
+    echo "  Binserve version: ''${BINSERVE_VERSION}"
     echo "  Architectures: amd64, arm64"
+    echo ""
+    echo "Tested with:"
+    echo "  Astro: ''${ASTRO_VERSION}"
+    echo "  Hugo: ''${HUGO_VERSION}"
+    echo "  Next.js: ''${NEXTJS_VERSION}"
     echo ""
     echo "Documentation: README.md"
   '';
 
-  # https://devenv.sh/languages/
-  # Uncomment if you need Rust for local binserve development
-  # languages.rust.enable = true;
-  # languages.rust.channel = "stable";
-
   # https://devenv.sh/pre-commit-hooks/
-  pre-commit.hooks = {
+  git-hooks.hooks = {
     markdownlint.enable = true;
     shellcheck.enable = true;
   };
-
-  # https://devenv.sh/processes/
-  # processes.docker.exec = "docker daemon";
 
   # See full reference at https://devenv.sh/reference/options/
 }

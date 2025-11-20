@@ -1,0 +1,33 @@
+# Example Jekyll configuration for use with binserve
+# Compatible with Jekyll 4.x+
+
+title: My Jekyll Site
+description: A Jekyll site served with binserve
+baseurl: "" # Optional: set to "/my-app" if not serving from root
+url: "https://example.com"
+
+# Jekyll builds to '_site/' directory by default
+# which works perfectly with binserve
+
+# Build settings
+markdown: kramdown
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+
+# Binserve serves your 404.html automatically
+# Just create 404.html or 404.md in your root directory
+
+# See README.md for examples with other frameworks:
+# Astro, Hugo, Next.js, Gatsby, Vite, Eleventy, MkDocs, etc.
+
